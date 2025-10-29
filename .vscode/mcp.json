@@ -1,0 +1,10 @@
+{
+	"servers": {
+		"my-mcp-server": {
+			"type": "stdio",
+			"command": "P:\\Entwicklung\\bricks-mcp\\bricks-mcp.exe",
+			"args": []
+		}
+	},
+	"inputs": []
+}

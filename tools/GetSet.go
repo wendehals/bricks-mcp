@@ -2,14 +2,11 @@ package tools
 
 import (
 	"context"
-	"log"
-	"net/http"
-	"time"
+	"fmt"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/wendehals/bricks-cli/api"
 	"github.com/wendehals/bricks-cli/model"
-	"github.com/wendehals/bricks-cli/utils"
+	"github.com/wendehals/bricks-mcp/utils"
 )
 
 const (
@@ -22,21 +19,14 @@ type GetSetInput struct {
 }
 
 func GetSet(ctx context.Context, req *mcp.CallToolRequest, input GetSetInput) (*mcp.CallToolResult, model.Set, error) {
-	client := &http.Client{
-		Timeout: time.Second * 5,
-	}
-
-	credentialsFile := utils.CredentialsDefaultPath()
-	credentials, err := api.ImportCredentials(credentialsFile)
+	apiClient, err := utils.GetBricksAPI()
 	if err != nil {
-		log.Fatalf("no credentials file found: %v", err)
+		return nil, model.Set{}, err
 	}
 
-	api := api.NewBricksAPI(client, credentials.APIKey, false)
-
-	set := api.GetSet(input.SetNumber)
+	set := apiClient.GetSet(input.SetNumber)
 	if set == nil {
-		log.Fatalf("set %s not found or API returned nil", input.SetNumber)
+		return nil, model.Set{}, fmt.Errorf("set number %s could not be found", input.SetNumber)
 	}
 
 	return nil, *set, nil
