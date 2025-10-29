@@ -22,6 +22,10 @@ func (f *fakeRoundTripperV2) RoundTrip(req *http.Request) (*http.Response, error
 	case url == "https://rebrickable.com/api/v3/users/_token/":
 		body = `{"user_token":"TESTTOKEN"}`
 
+	// Parts endpoint
+	case bytes.Contains([]byte(url), []byte("/allparts")):
+		body = `{"next":"","results":[{"quantity":2,"part":{"part_num":"3001","name":"Brick 2 x 4","part_url":"https://rebrickable.com/parts/3001","part_img_url":""},"color":{"id":1,"name":"Blue"},"is_spare":false,"set_num":""}]}`
+
 	// User sets endpoint
 	case bytes.Contains([]byte(url), []byte("/sets")):
 		body = `{"count":1,"next":null,"previous":null,"results":[{"set":{"set_num":"10001","name":"Test Set","year":2020,"theme_id":1,"num_parts":100,"set_img_url":"","set_url":""},"quantity":1,"include_spares":false}]}`
@@ -65,6 +69,32 @@ func setupFakeUsersAPI(_ *testing.T) func() {
 		return api.NewUsersAPI(client, creds, false), nil
 	}
 	return func() { utils.GetUsersAPIOverride = prev }
+}
+
+func TestGetAllUserPartsToolWithFakeUsersAPI(t *testing.T) {
+	cleanup := setupFakeUsersAPI(t)
+	defer cleanup()
+
+	// Call the tool
+	_, coll, err := GetAllUserParts(context.Background(), nil, GetAllUserPartsInput{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if coll.Parts == nil || len(coll.Parts) != 1 {
+		t.Fatalf("expected 1 part, got %d", len(coll.Parts))
+	}
+
+	p := coll.Parts[0]
+	if p.Quantity != 2 {
+		t.Fatalf("expected quantity 2, got %d", p.Quantity)
+	}
+	if p.Shape.Number != "3001" {
+		t.Fatalf("expected part_num 3001, got %s", p.Shape.Number)
+	}
+	if p.Color.Name != "Blue" {
+		t.Fatalf("expected color Blue, got %s", p.Color.Name)
+	}
 }
 
 func TestGetAllUserSetsToolWithFakeUsersAPI(t *testing.T) {
