@@ -5,6 +5,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/wendehals/bricks-mcp/tools/apitools"
+	"github.com/wendehals/bricks-mcp/tools/services"
 )
 
 // TestToolRegistration is a lightweight wrapper test that verifies all tool
@@ -28,6 +29,10 @@ func TestToolRegistration(t *testing.T) {
 	mcp.AddTool(server, &mcp.Tool{Name: apitools.GetUserSetListToolName, Description: apitools.GetUserSetListToolDescription}, apitools.GetUserSetList)
 	mcp.AddTool(server, &mcp.Tool{Name: apitools.GetSetsOfUserSetListToolName, Description: apitools.GetSetsOfUserSetListToolDescription}, apitools.GetSetsOfUserSetList)
 	mcp.AddTool(server, &mcp.Tool{Name: apitools.GetUsersPartListsToolName, Description: apitools.GetUsersPartListsToolDescription}, apitools.GetUsersPartLists)
+
+	mcp.AddTool(server, &mcp.Tool{Name: services.MergeCollectionsToolName, Description: services.MergeCollectionsToolDescription}, services.MergeCollections)
+	mcp.AddTool(server, &mcp.Tool{Name: services.MergeAllCollectionsToolName, Description: services.MergeAllCollectionsToolDescription}, services.MergeAllCollections)
+	mcp.AddTool(server, &mcp.Tool{Name: services.BuildToolName, Description: services.BuildToolDescription}, services.Build)
 
 	// If we reached this point the registration succeeded.
 	_ = server
