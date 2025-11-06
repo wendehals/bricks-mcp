@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/wendehals/bricks-mcp/prompts"
 	"github.com/wendehals/bricks-mcp/tools/apitools"
 	"github.com/wendehals/bricks-mcp/tools/services"
 )
@@ -24,6 +25,11 @@ func main() {
 	mcp.AddTool(server, &mcp.Tool{Name: services.MergeCollectionsToolName, Description: services.MergeCollectionsToolDescription}, services.MergeCollections)
 	mcp.AddTool(server, &mcp.Tool{Name: services.MergeAllCollectionsToolName, Description: services.MergeAllCollectionsToolDescription}, services.MergeAllCollections)
 	mcp.AddTool(server, &mcp.Tool{Name: services.BuildToolName, Description: services.BuildToolDescription}, services.Build)
+
+	mcp.AddTool(server, &mcp.Tool{Name: services.RunScriptToolName, Description: services.RunScriptToolDescription}, services.RunScript)
+
+	// Add prompts
+	server.AddPrompt(prompts.GetUserSetPrompt(), prompts.GetUserSetHandler)
 
 	// Run the server over stdin/stdout, until the client disconnects.
 	if err := server.Run(context.Background(), &mcp.StdioTransport{}); err != nil {

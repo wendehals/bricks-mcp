@@ -34,6 +34,8 @@ func TestToolRegistration(t *testing.T) {
 	mcp.AddTool(server, &mcp.Tool{Name: services.MergeAllCollectionsToolName, Description: services.MergeAllCollectionsToolDescription}, services.MergeAllCollections)
 	mcp.AddTool(server, &mcp.Tool{Name: services.BuildToolName, Description: services.BuildToolDescription}, services.Build)
 
+	mcp.AddTool(server, &mcp.Tool{Name: services.RunScriptToolName, Description: services.RunScriptToolDescription}, services.RunScript)
+
 	// If we reached this point the registration succeeded.
 	_ = server
 }
