@@ -1,0 +1,347 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/wendehals/bricks-cli/schema/bricks-script.json",
+  "title": "Bricks Script",
+  "description": "Schema for Bricks scripting language used in bricks-cli",
+  "type": "object",
+  "properties": {
+    "commands": {
+      "type": "array",
+      "description": "Array of commands in the Bricks script",
+      "items": {
+        "$ref": "#/definitions/command"
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["commands"],
+  "definitions": {
+    "command": {
+      "oneOf": [
+        { "$ref": "#/definitions/assignment" },
+        { "$ref": "#/definitions/save" },
+        { "$ref": "#/definitions/export" },
+        { "$ref": "#/definitions/print" },
+        { "$ref": "#/definitions/pause" }
+      ]
+    },
+    "assignment": {
+      "type": "object",
+      "description": "Assigns an expression result to a variable",
+      "properties": {
+        "type": { "const": "assignment" },
+        "variable": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "description": "Variable identifier"
+        },
+        "expression": { "$ref": "#/definitions/expression" }
+      },
+      "required": ["type", "variable", "expression"],
+      "additionalProperties": false
+    },
+    "save": {
+      "type": "object",
+      "description": "Saves an expression result to a JSON file",
+      "properties": {
+        "type": { "const": "save" },
+        "expression": { "$ref": "#/definitions/expression" },
+        "fileName": {
+          "type": "string",
+          "description": "File path to save to"
+        }
+      },
+      "required": ["type", "expression", "fileName"],
+      "additionalProperties": false
+    },
+    "export": {
+      "type": "object",
+      "description": "Exports an expression result to HTML",
+      "properties": {
+        "type": { "const": "export" },
+        "expression": { "$ref": "#/definitions/expression" },
+        "dirName": {
+          "type": "string",
+          "description": "Directory path to export to"
+        }
+      },
+      "required": ["type", "expression", "dirName"],
+      "additionalProperties": false
+    },
+    "print": {
+      "type": "object",
+      "description": "Prints an expression result to console",
+      "properties": {
+        "type": { "const": "print" },
+        "expression": { "$ref": "#/definitions/expression" }
+      },
+      "required": ["type", "expression"],
+      "additionalProperties": false
+    },
+    "pause": {
+      "type": "object",
+      "description": "Pauses script execution for specified seconds",
+      "properties": {
+        "type": { "const": "pause" },
+        "seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of seconds to pause"
+        }
+      },
+      "required": ["type", "seconds"],
+      "additionalProperties": false
+    },
+    "expression": {
+      "oneOf": [
+        { "$ref": "#/definitions/collection" },
+        { "$ref": "#/definitions/build" },
+        { "$ref": "#/definitions/identifier" }
+      ]
+    },
+    "collectionOrId": {
+      "oneOf": [
+        { "$ref": "#/definitions/collection" },
+        { "$ref": "#/definitions/identifier" }
+      ]
+    },
+    "collection": {
+      "oneOf": [
+        { "$ref": "#/definitions/load" },
+        { "$ref": "#/definitions/import" },
+        { "$ref": "#/definitions/allParts" },
+        { "$ref": "#/definitions/lost" },
+        { "$ref": "#/definitions/set" },
+        { "$ref": "#/definitions/userSet" },
+        { "$ref": "#/definitions/setList" },
+        { "$ref": "#/definitions/partList" },
+        { "$ref": "#/definitions/partLists" },
+        { "$ref": "#/definitions/sum" },
+        { "$ref": "#/definitions/subtract" },
+        { "$ref": "#/definitions/max" },
+        { "$ref": "#/definitions/sort" }
+      ]
+    },
+    "identifier": {
+      "type": "object",
+      "description": "Reference to a previously assigned variable",
+      "properties": {
+        "type": { "const": "identifier" },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+        }
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+    "load": {
+      "type": "object",
+      "description": "Loads a collection from a JSON file",
+      "properties": {
+        "type": { "const": "load" },
+        "fileName": { "type": "string" }
+      },
+      "required": ["type", "fileName"],
+      "additionalProperties": false
+    },
+    "import": {
+      "type": "object",
+      "description": "Imports a collection from a Rebrickable CSV file",
+      "properties": {
+        "type": { "const": "import" },
+        "fileName": { "type": "string" }
+      },
+      "required": ["type", "fileName"],
+      "additionalProperties": false
+    },
+    "allParts": {
+      "type": "object",
+      "description": "All parts owned by the user",
+      "properties": {
+        "type": { "const": "allParts" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "lost": {
+      "type": "object",
+      "description": "All parts marked as lost by the user",
+      "properties": {
+        "type": { "const": "lost" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "set": {
+      "type": "object",
+      "description": "All parts of a specific set",
+      "properties": {
+        "type": { "const": "set" },
+        "setNumber": {
+          "type": "string",
+          "pattern": "^\\d+-\\d+$",
+          "description": "Set number in format: number-version (e.g., 8880-1)"
+        },
+        "includeMinifigs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to include minifigures"
+        }
+      },
+      "required": ["type", "setNumber"],
+      "additionalProperties": false
+    },
+    "userSet": {
+      "type": "object",
+      "description": "All parts of a specific set owned by the user (excluding lost parts)",
+      "properties": {
+        "type": { "const": "userSet" },
+        "setNumber": {
+          "type": "string",
+          "pattern": "^\\d+-\\d+$",
+          "description": "Set number in format: number-version (e.g., 8880-1)"
+        },
+        "includeMinifigs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to include minifigures"
+        }
+      },
+      "required": ["type", "setNumber"],
+      "additionalProperties": false
+    },
+    "setList": {
+      "type": "object",
+      "description": "All parts contained in a set list",
+      "properties": {
+        "type": { "const": "setList" },
+        "listId": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Set list ID"
+        },
+        "includeMinifigs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to include minifigures"
+        }
+      },
+      "required": ["type", "listId"],
+      "additionalProperties": false
+    },
+    "partList": {
+      "type": "object",
+      "description": "All parts contained in a part list",
+      "properties": {
+        "type": { "const": "partList" },
+        "listId": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Part list ID"
+        }
+      },
+      "required": ["type", "listId"],
+      "additionalProperties": false
+    },
+    "partLists": {
+      "type": "object",
+      "description": "All parts contained in part lists matching a name pattern",
+      "properties": {
+        "type": { "const": "partLists" },
+        "namePattern": {
+          "type": "string",
+          "description": "Name pattern to match part lists"
+        },
+        "includeNonBuildable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to include non-buildable part lists"
+        }
+      },
+      "required": ["type", "namePattern"],
+      "additionalProperties": false
+    },
+    "sum": {
+      "type": "object",
+      "description": "Sum of all parts from multiple collections",
+      "properties": {
+        "type": { "const": "sum" },
+        "operands": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/collectionOrId" },
+          "minItems": 2
+        }
+      },
+      "required": ["type", "operands"],
+      "additionalProperties": false
+    },
+    "subtract": {
+      "type": "object",
+      "description": "Subtracts parts of second collection from first",
+      "properties": {
+        "type": { "const": "subtract" },
+        "minuend": { "$ref": "#/definitions/collectionOrId" },
+        "subtrahend": { "$ref": "#/definitions/collectionOrId" }
+      },
+      "required": ["type", "minuend", "subtrahend"],
+      "additionalProperties": false
+    },
+    "max": {
+      "type": "object",
+      "description": "Maximum quantity for each part from multiple collections",
+      "properties": {
+        "type": { "const": "max" },
+        "operands": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/collectionOrId" },
+          "minItems": 2
+        }
+      },
+      "required": ["type", "operands"],
+      "additionalProperties": false
+    },
+    "sort": {
+      "type": "object",
+      "description": "Sorts parts in a collection",
+      "properties": {
+        "type": { "const": "sort" },
+        "collection": { "$ref": "#/definitions/collectionOrId" },
+        "byQuantity": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sort by quantity instead of color"
+        },
+        "descending": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sort in descending order"
+        }
+      },
+      "required": ["type", "collection"],
+      "additionalProperties": false
+    },
+    "build": {
+      "type": "object",
+      "description": "Builds a set using available parts",
+      "properties": {
+        "type": { "const": "build" },
+        "targetSet": {
+          "$ref": "#/definitions/collectionOrId",
+          "description": "The set to build"
+        },
+        "availableParts": {
+          "$ref": "#/definitions/collectionOrId",
+          "description": "Available parts to use for building"
+        },
+        "buildMode": {
+          "type": "string",
+          "pattern": "^[CAMP]*$",
+          "description": "Build mode flags: C(olor), A(lternates), M(olds), P(rints)"
+        }
+      },
+      "required": ["type", "targetSet", "availableParts"],
+      "additionalProperties": false
+    }
+  }
+}

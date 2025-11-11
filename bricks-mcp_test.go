@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/wendehals/bricks-mcp/prompts"
+	"github.com/wendehals/bricks-mcp/resources"
 	"github.com/wendehals/bricks-mcp/tools/apitools"
 	"github.com/wendehals/bricks-mcp/tools/services"
 )
@@ -35,6 +37,12 @@ func TestToolRegistration(t *testing.T) {
 	mcp.AddTool(server, &mcp.Tool{Name: services.BuildToolName, Description: services.BuildToolDescription}, services.Build)
 
 	mcp.AddTool(server, &mcp.Tool{Name: services.RunScriptToolName, Description: services.RunScriptToolDescription}, services.RunScript)
+
+	// Register prompts
+	server.AddPrompt(prompts.GetUserSetPrompt(), prompts.GetUserSetHandler)
+
+	// Register resources
+	server.AddResource(resources.BricksScriptSchemaResource(), resources.BricksScriptSchemaHandler)
 
 	// If we reached this point the registration succeeded.
 	_ = server
